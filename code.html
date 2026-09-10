@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Personal Wellness Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/recharts/umd/Recharts.min.js"></script>
+<script crossorigin="" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+    class ThreeJSScene extends HTMLElement {
+        connectedCallback() {
+            const src = this.getAttribute('src');
+            if (src) {
+                const script = document.createElement('script');
+                script.textContent = `
+                    (function(container) {
+                        ${src}
+                    })(document.currentScript.parentElement);
+                `;
+                this.appendChild(script);
+            }
+        }
+    }
+    customElements.define('threejs-scene', ThreeJSScene);
+</script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#ffc174",
+                        "secondary-container": "#00a572",
+                        "surface": "#0b1326",
+                        "inverse-primary": "#00668a",
+                        "on-surface-variant": "#bdc8d1",
+                        "outline": "#87929a",
+                        "on-tertiary": "#472a00",
+                        "surface-bright": "#31394d",
+                        "surface-container-high": "#222a3d",
+                        "primary-fixed-dim": "#7bd0ff",
+                        "inverse-on-surface": "#283044",
+                        "surface-variant": "#2d3449",
+                        "error-container": "#93000a",
+                        "secondary-fixed": "#6ffbbe",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-surface": "#dae2fd",
+                        "surface-container-lowest": "#060e20",
+                        "primary": "#8ed5ff",
+                        "on-error-container": "#ffdad6",
+                        "inverse-surface": "#dae2fd",
+                        "on-primary-fixed-variant": "#004c69",
+                        "tertiary-container": "#f59e0b",
+                        "surface-dim": "#0b1326",
+                        "secondary": "#4edea3",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-primary-container": "#004965",
+                        "on-tertiary-container": "#613b00",
+                        "error": "#ffb4ab",
+                        "surface-container-highest": "#2d3449",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "primary-container": "#38bdf8",
+                        "on-secondary-container": "#00311f",
+                        "on-error": "#690005",
+                        "secondary-fixed-dim": "#4edea3",
+                        "background": "#0b1326",
+                        "outline-variant": "#3e484f",
+                        "primary-fixed": "#c4e7ff",
+                        "surface-container": "#171f33",
+                        "surface-container-low": "#131b2e",
+                        "on-secondary": "#003824",
+                        "surface-tint": "#7bd0ff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-primary": "#00354a",
+                        "on-background": "#dae2fd",
+                        "on-primary-fixed": "#001e2c",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-secondary-fixed": "#002113"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "grid-gutter": "16px",
+                        "grid-margin": "20px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "title-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "numeric-data": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "500" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "numeric-data": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Ambient depth effects */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+        
+        .metric-glow-green { box-shadow: 0 0 20px rgba(78, 222, 163, 0.15); }
+        .metric-glow-amber { box-shadow: 0 0 20px rgba(245, 158, 11, 0.15); }
+        .metric-glow-red { box-shadow: 0 0 20px rgba(255, 180, 171, 0.15); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-24 md:pb-8 font-body-md text-body-md overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full bg-background dark:bg-background flex justify-between items-center px-grid-margin py-sm z-50 flat no shadows">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container shrink-0">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="A close up, highly detailed portrait of a diverse young professional looking healthy and relaxed, shot with natural, soft lighting in a modern urban apartment setting. The color palette is composed of cool blues and warm skin tones, conveying an approachable, health-conscious aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRvizdTsup-kiKaunzkImH3zXNfZ2N1f_W-WIPdKRlRrdpRNn96r5J-d-Aaaye7n1O3ldT4JzwZWu0OklMj0rCoYDpUEmOWw7vklQ_7gZPTA8naSooan3M0Jm4sm8a9pPnD7roBdotJZxApq_8-hvp1ccHhw7KHpqTV5fTMi08MnQk3fYeet4dQcuFAIvWM9EVWz9hR53rM6M-Ji-vFlsPTqYxkEYRV8zKJamjKPsB3Cop8qQqpnnndw"/>
+</div>
+<div class="flex flex-col">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary tracking-tight">Good Morning, Alex</h1>
+<div class="flex items-center gap-2 mt-1">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-md text-label-md text-secondary uppercase tracking-wider">Wellness Status: Good</span>
+</div>
+</div>
+</div>
+<button aria-label="calendar_today" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant/50 transition-colors active:scale-95 duration-200 text-on-surface-variant dark:text-on-surface-variant shrink-0">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">calendar_today</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-24 px-grid-margin md:px-10 max-w-7xl mx-auto space-y-xl">
+<!-- 3D Vital Rhythm Visualization -->
+<div class="w-full h-80 relative overflow-hidden bg-surface-container-lowest/50 rounded-3xl mb-8">
+<!-- STITCH_THREEJS_START:ANIMATION_4 class="w-full h-full bg-transparent" -->
+<div class="w-full h-full bg-transparent" style="display:block;">
+<script src="https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js"></script>
+<div id="threejs-container-ANIMATION_4" style="width:100%;height:100%"></div>
+<script>
+(function() {
+  const container = document.getElementById('threejs-container-ANIMATION_4');
+  const devicePixelRatio = window.devicePixelRatio || 1;
+  const width = container.clientWidth || window.innerWidth;
+const height = container.clientHeight || window.innerHeight;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+camera.position.z = 5;
+
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+renderer.setSize(width, height);
+renderer.setPixelRatio(window.devicePixelRatio);
+container.appendChild(renderer.domElement);
+
+// Lighting
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambientLight);
+
+const pointLight = new THREE.PointLight(0x38bdf8, 1);
+pointLight.position.set(5, 5, 5);
+scene.add(pointLight);
+
+// Create a pulsing vital "core"
+const geometry = new THREE.IcosahedronGeometry(2, 1);
+const material = new THREE.MeshPhongMaterial({
+    color: 0x38bdf8,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.8,
+    shininess: 100
+});
+const core = new THREE.Mesh(geometry, material);
+scene.add(core);
+
+// Inner solid core
+const innerGeo = new THREE.IcosahedronGeometry(1.2, 0);
+const innerMat = new THREE.MeshPhongMaterial({
+    color: 0x10b981,
+    transparent: true,
+    opacity: 0.4
+});
+const innerCore = new THREE.Mesh(innerGeo, innerMat);
+scene.add(innerCore);
+
+// Add some floating "vital" particles
+const particlesCount = 100;
+const positions = new Float32Array(particlesCount * 3);
+for (let i = 0; i < particlesCount * 3; i++) {
+    positions[i] = (Math.random() - 0.5) * 10;
+}
+const particlesGeo = new THREE.BufferGeometry();
+particlesGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+const particlesMat = new THREE.PointsMaterial({
+    color: 0xffffff,
+    size: 0.05,
+    transparent: true,
+    opacity: 0.5
+});
+const particles = new THREE.Points(particlesGeo, particlesMat);
+scene.add(particles);
+
+let time = 0;
+function animate() {
+    requestAnimationFrame(animate);
+    time += 0.01;
+
+    // Pulse core
+    const pulse = 1 + Math.sin(time * 2) * 0.1;
+    core.scale.set(pulse, pulse, pulse);
+    core.rotation.y += 0.005;
+    core.rotation.x += 0.003;
+
+    innerCore.rotation.y -= 0.008;
+    innerCore.scale.set(1 / pulse, 1 / pulse, 1 / pulse);
+
+    // Animate particles
+    particles.rotation.y += 0.001;
+    const pos = particlesGeo.attributes.position.array;
+    for (let i = 0; i < particlesCount; i++) {
+        const i3 = i * 3;
+        pos[i3 + 1] += Math.sin(time + pos[i3]) * 0.002;
+    }
+    particlesGeo.attributes.position.needsUpdate = true;
+
+    renderer.render(scene, camera);
+}
+
+animate();
+
+window.addEventListener('resize', () => {
+    const newWidth = container.clientWidth || window.innerWidth;
+    const newHeight = container.clientHeight || window.innerHeight;
+    camera.aspect = newWidth / newHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(newWidth, newHeight);
+});
+})();
+</script>
+</div>
+<!-- STITCH_THREEJS_END:ANIMATION_4 -->
+<div class="absolute bottom-4 left-6 z-10">
+<span class="font-label-md text-label-md text-on-surface-variant tracking-wider uppercase">Live Vital Rhythm</span>
+</div>
+</div>
+<!-- Risk Score Cards (Bento style row) -->
+<section aria-label="Risk Scores">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Heat Stress -->
+<div class="glass-panel rounded-xl p-md flex flex-col items-center justify-center relative overflow-hidden group hover:bg-surface-bright transition-colors duration-300 metric-glow-amber">
+<div class="absolute top-4 left-4 flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">thermometer</span>
+<span class="font-label-md text-label-md uppercase tracking-wider">Heat Stress</span>
+</div>
+<div class="mt-8 mb-4 w-32 h-32 relative flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="transparent" r="40" stroke="rgba(245,158,11,0.1)" stroke-dasharray="251.2" stroke-dashoffset="0" stroke-width="8"></circle>
+<circle class="transition-all duration-1000 ease-out" cx="50" cy="50" fill="transparent" r="40" stroke="#f59e0b" stroke-dasharray="251.2" stroke-dashoffset="113.04" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="font-numeric-data text-numeric-data text-tertiary-container">45</span>
+</div>
+</div>
+<div class="w-full flex justify-between items-center mt-2 px-2 text-xs text-on-surface-variant">
+<span>Low</span>
+<span class="text-tertiary-container font-medium">Moderate</span>
+<span>High</span>
+</div>
+</div>
+<!-- Respiratory -->
+<div class="glass-panel rounded-xl p-md flex flex-col items-center justify-center relative overflow-hidden group hover:bg-surface-bright transition-colors duration-300 metric-glow-green">
+<div class="absolute top-4 left-4 flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">pulmonology</span>
+<span class="font-label-md text-label-md uppercase tracking-wider">Respiratory</span>
+</div>
+<div class="mt-8 mb-4 w-32 h-32 relative flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="transparent" r="40" stroke="rgba(78,222,163,0.1)" stroke-dasharray="251.2" stroke-dashoffset="0" stroke-width="8"></circle>
+<circle class="transition-all duration-1000 ease-out" cx="50" cy="50" fill="transparent" r="40" stroke="#4edea3" stroke-dasharray="251.2" stroke-dashoffset="200.96" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="font-numeric-data text-numeric-data text-secondary">15</span>
+</div>
+</div>
+<div class="w-full flex justify-between items-center mt-2 px-2 text-xs text-on-surface-variant">
+<span class="text-secondary font-medium">Optimal</span>
+<span>Warning</span>
+<span>Critical</span>
+</div>
+</div>
+<!-- Cardiovascular -->
+<div class="glass-panel rounded-xl p-md flex flex-col items-center justify-center relative overflow-hidden group hover:bg-surface-bright transition-colors duration-300 metric-glow-green">
+<div class="absolute top-4 left-4 flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+<span class="font-label-md text-label-md uppercase tracking-wider">Cardiovascular</span>
+</div>
+<div class="mt-8 mb-4 w-32 h-32 relative flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="transparent" r="40" stroke="rgba(78,222,163,0.1)" stroke-dasharray="251.2" stroke-dashoffset="0" stroke-width="8"></circle>
+<circle class="transition-all duration-1000 ease-out" cx="50" cy="50" fill="transparent" r="40" stroke="#4edea3" stroke-dasharray="251.2" stroke-dashoffset="188.4" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="font-numeric-data text-numeric-data text-secondary">25</span>
+</div>
+</div>
+<div class="w-full flex justify-between items-center mt-2 px-2 text-xs text-on-surface-variant">
+<span class="text-secondary font-medium">Healthy</span>
+<span>Elevated</span>
+<span>Risk</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 7-Day Trend Chart Area -->
+<section aria-label="7-Day Trends" class="glass-panel rounded-xl p-lg">
+<div class="flex justify-between items-center mb-md">
+<h2 class="font-title-lg text-title-lg text-on-surface">7-Day Vitals Trend</h2>
+<div class="flex gap-2">
+<button class="px-3 py-1 rounded-full bg-surface-variant text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors">1D</button>
+<button class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-md text-label-md">1W</button>
+<button class="px-3 py-1 rounded-full bg-surface-variant text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors">1M</button>
+</div>
+</div>
+<div class="h-64 w-full relative" id="trends-chart-container">
+<!-- Fallback static visualization if React/Recharts fails -->
+<div class="absolute inset-0 flex flex-col justify-end pb-8 border-b border-outline-variant/30">
+<div class="flex justify-between items-end w-full h-full px-4 gap-2">
+<div class="w-full bg-primary/20 rounded-t-sm h-[40%] relative"><div class="absolute bottom-full w-full h-[30%] bg-secondary/30 rounded-t-sm"></div></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[50%] relative"><div class="absolute bottom-full w-full h-[25%] bg-secondary/30 rounded-t-sm"></div></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[45%] relative"><div class="absolute bottom-full w-full h-[40%] bg-secondary/30 rounded-t-sm"></div></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[60%] relative"><div class="absolute bottom-full w-full h-[20%] bg-secondary/30 rounded-t-sm"></div></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[55%] relative"><div class="absolute bottom-full w-full h-[35%] bg-secondary/30 rounded-t-sm"></div></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[70%] relative"><div class="absolute bottom-full w-full h-[15%] bg-secondary/30 rounded-t-sm"></div></div>
+<div class="w-full bg-primary/30 rounded-t-sm h-[65%] relative metric-glow-green"><div class="absolute bottom-full w-full h-[20%] bg-secondary/50 rounded-t-sm"></div></div>
+</div>
+</div>
+<div class="absolute bottom-0 w-full flex justify-between text-xs text-on-surface-variant px-4 pt-2">
+<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+</div>
+</div>
+<div class="flex justify-center gap-6 mt-6">
+<div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-primary-container"></span><span class="text-sm text-on-surface-variant">Heart Rate</span></div>
+<div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-secondary"></span><span class="text-sm text-on-surface-variant">SpO2</span></div>
+<div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-tertiary"></span><span class="text-sm text-on-surface-variant">Temp (°C)</span></div>
+</div>
+</section>
+<!-- Asymmetric Grid: Vitals Summary & Environment -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-md">
+<!-- Today's Vitals Summary (Takes up 2 cols on lg) -->
+<section aria-label="Today's Vitals" class="lg:col-span-2 glass-panel rounded-xl p-lg">
+<h2 class="font-title-lg text-title-lg text-on-surface mb-md">Today's Vitals</h2>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-sm">
+<div class="bg-surface-container-high rounded-lg p-sm border border-outline-variant/30 flex flex-col justify-between h-28 hover:bg-surface-bright transition-colors">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary text-[20px]">monitor_heart</span>
+<span class="text-xs text-secondary flex items-center"><span class="material-symbols-outlined text-[14px]">arrow_downward</span> 2%</span>
+</div>
+<div>
+<div class="font-numeric-data text-2xl text-on-surface">72 <span class="text-xs font-normal text-on-surface-variant">bpm</span></div>
+<div class="font-label-md text-label-md text-on-surface-variant mt-1">Avg HR</div>
+</div>
+</div>
+<div class="bg-surface-container-high rounded-lg p-sm border border-outline-variant/30 flex flex-col justify-between h-28 hover:bg-surface-bright transition-colors">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-secondary text-[20px]">air</span>
+<span class="text-xs text-on-surface-variant flex items-center"><span class="material-symbols-outlined text-[14px]">horizontal_rule</span></span>
+</div>
+<div>
+<div class="font-numeric-data text-2xl text-on-surface">98 <span class="text-xs font-normal text-on-surface-variant">%</span></div>
+<div class="font-label-md text-label-md text-on-surface-variant mt-1">Min SpO2</div>
+</div>
+</div>
+<div class="bg-surface-container-high rounded-lg p-sm border border-outline-variant/30 flex flex-col justify-between h-28 hover:bg-surface-bright transition-colors">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-tertiary text-[20px]">device_thermostat</span>
+<span class="text-xs text-secondary flex items-center"><span class="material-symbols-outlined text-[14px]">arrow_downward</span> 0.1°</span>
+</div>
+<div>
+<div class="font-numeric-data text-2xl text-on-surface">36.8 <span class="text-xs font-normal text-on-surface-variant">°C</span></div>
+<div class="font-label-md text-label-md text-on-surface-variant mt-1">Max Temp</div>
+</div>
+</div>
+<div class="bg-surface-container-high rounded-lg p-sm border border-outline-variant/30 flex flex-col justify-between h-28 hover:bg-surface-bright transition-colors">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary-fixed text-[20px]">bedtime</span>
+<span class="text-xs text-secondary flex items-center"><span class="material-symbols-outlined text-[14px]">arrow_upward</span> 30m</span>
+</div>
+<div>
+<div class="font-numeric-data text-2xl text-on-surface">7.5 <span class="text-xs font-normal text-on-surface-variant">hrs</span></div>
+<div class="font-label-md text-label-md text-on-surface-variant mt-1">Sleep</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Environmental Widget -->
+<section aria-label="Environment" class="glass-panel rounded-xl p-lg relative overflow-hidden flex flex-col justify-between">
+<!-- Atmospheric background gradient -->
+<div class="absolute inset-0 bg-gradient-to-br from-error-container/20 to-surface-container opacity-50 pointer-events-none"></div>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-4">
+<h2 class="font-title-lg text-title-lg text-on-surface">Environment</h2>
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded-sm bg-error-container text-on-error-container text-[10px] font-bold uppercase tracking-wider animate-pulse">
+<span class="material-symbols-outlined text-[12px]">warning</span> Heat Wave
+                        </span>
+</div>
+<div class="flex items-end gap-2 mb-6">
+<span class="font-numeric-data text-4xl text-on-surface">34°</span>
+<span class="text-on-surface-variant mb-1">Local</span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center border-b border-outline-variant/30 pb-2">
+<div class="flex items-center gap-2 text-on-surface-variant"><span class="material-symbols-outlined text-[16px]">humidity_percentage</span> Humidity</div>
+<span class="font-medium text-on-surface">65%</span>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2 text-on-surface-variant"><span class="material-symbols-outlined text-[16px]">air</span> AQI</div>
+<span class="font-medium text-tertiary-container">72 (Mod)</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Recommendations -->
+<section aria-label="Recommendations" class="glass-panel rounded-xl p-lg">
+<h2 class="font-title-lg text-title-lg text-on-surface mb-md">Personalized Actions</h2>
+<div class="space-y-sm">
+<!-- Action 1: High Priority -->
+<div class="flex items-center p-sm rounded-lg bg-surface-container border border-error-container/30 hover:border-error-container/60 transition-colors group cursor-pointer">
+<div class="w-10 h-10 rounded-full bg-error-container/20 flex items-center justify-center text-error mr-md shrink-0">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">water_drop</span>
+</div>
+<div class="flex-1">
+<h3 class="font-title-lg text-[16px] text-on-surface group-hover:text-primary transition-colors">Hydration Alert</h3>
+<p class="text-sm text-on-surface-variant">Elevated temp detected. Drink 500ml water now.</p>
+</div>
+<button class="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant group-hover:bg-primary-container group-hover:text-on-primary-container group-hover:border-primary-container transition-all">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</button>
+</div>
+<!-- Action 2: Medium Priority -->
+<div class="flex items-center p-sm rounded-lg bg-surface-container border border-tertiary-container/30 hover:border-tertiary-container/60 transition-colors group cursor-pointer">
+<div class="w-10 h-10 rounded-full bg-tertiary-container/20 flex items-center justify-center text-tertiary-container mr-md shrink-0">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">directions_walk</span>
+</div>
+<div class="flex-1">
+<h3 class="font-title-lg text-[16px] text-on-surface group-hover:text-primary transition-colors">Activity Check</h3>
+<p class="text-sm text-on-surface-variant">You've been sedentary for 2 hours. Short walk recommended.</p>
+</div>
+<button class="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant group-hover:bg-primary-container group-hover:text-on-primary-container group-hover:border-primary-container transition-all">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-4 pt-2 bg-surface dark:bg-surface border-t border-outline-variant rounded-t-xl shadow-lg">
+<!-- Vitals (Active Semantically as Home/Dashboard) -->
+<button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 active:scale-90 duration-150">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">monitor_heart</span>
+<span class="font-label-md text-label-md mt-1">Vitals</span>
+</button>
+<!-- Trends (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90 duration-150 px-4 py-1">
+<span class="material-symbols-outlined">insights</span>
+<span class="font-label-md text-label-md mt-1">Trends</span>
+</button>
+<!-- Settings (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90 duration-150 px-4 py-1">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md mt-1">Settings</span>
+</button>
+</nav>
+</body></html>
